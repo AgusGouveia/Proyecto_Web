@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UnderwaterGuy</title>
+    <link rel="stylesheet" href="/static/css/milligram.css">
+    <script src="/static/js/UnderwaterGuy.js"></script>
+</head>
+<body>
+    <header>CritoAPI</header>
+    <section class="container" id="principal">
+        <h1>Historial de transacciones</h1>
+        <div class="lista-movimientos">
+            <table class="tabla-movimientos">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>From_Moneda</th>
+                        <th>From_Cantidad</th>
+                        <th>To_Moneda</th>
+                        <th>To_Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+    <hr> <!-- Linea horizontal para separar un tema/parrafo de otro -->
+    <div class="detail-movimiento container">
+        <form>
+            <div class="row"> <!--Creamos una fila-->
+                <input type="hidden" id="idMovimiento">
+                <div class="column">
+                    <label for="From_Moneda">From_Moneda</label>
+                    <select name="From_Moneda" id="From_Moneda">
+                        <option value="EUR">Euro(EUR)</option>
+                        <option value="BTC">Bitcoin(BTC)</option>
+                        <option value="ETH">Ethereum(ETH)</option>
+                        <option value="LTC">Litecoin(LTC)</option>
+                        <option value="DOGE">Dogecoin(DOGE)</option>
+                    </select>
+                </div>
+                <div class="column column-75"> 
+                    <div class="row">
+                        <input type="hidden" id="idMovimiento">
+                    <div class="column column-33">
+                    <label for="To_Moneda">To_Moneda</label>
+                    <select name="To_Moneda" id="To_Moneda">
+                        <option value="EUR">Euro(EUR)</option>
+                        <option value="BTC">Bitcoin(BTC)</option>
+                        <option value="ETH">Ethereum(ETH)</option>
+                        <option value="LTC">Litecoin(LTC)</option>
+                        <option value="DOGE">Dogecoin(DOGE)</option>
+                    </select>
+                </div>
+                    </div>  
+                </div>
+            </div>
+            <div class="row">
+                <div class="column column-33">
+                    <label for="From_Cantidad">From_Cantidad</label>
+                    <input type="number" name="From_Cantidad" id="From_Cantidad" step="any">
+                </div>
+                <div class="column column-33">
+                    <label for="To_Cantidad">To_Cantidad</label>
+                    <input type="number" name="To_Cantidad" id="To_Cantidad" step="any">
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <button id="cancelar" >Cancelar</button>
+                    <button id="aceptar" >Aceptar</button>
+                    <button class="float-right" id="boton sin uso" >Boton sin uso</button>
+                </div>
+            </div>
+        </form>
+    </div>
+<footer>&copy 2021, Agustin Gouveia</footer>
+</body>
+</html>
