@@ -12,6 +12,7 @@ const categorias = {
 
 let losMovimientos 
 xhr = new XMLHttpRequest() // Manejador de peticiones de forma asincrona
+xhr2 = new XMLHttpRequest() // Necesitamos 2 para poder hacer dos llamadas sin que se pisen una a la otra
 
 function recibeRespuesta() {
     if (this.readyState === 4 && (this.status === 200 || this.status === 201)) {
@@ -55,25 +56,22 @@ function detallaMovimiento(id) {
     }
 }
 
-function muestraMovimientos() {
+function muestraMovimientos() { 
     if (this.readyState === 4 && this.status === 200) {
-        const respuesta = JSON.parse(this.responseText) 
+        const respuesta = JSON.parse(this.responseText) //Convierte de string a objeto JSON
 
         if (respuesta.status !== 'success') {
             alert("Se ha producido un error en la consulta de movimientos")
             return
         }
 
-        losMovimientos = respuesta.movimientos
+        losMovimientos = respuesta.data
         const tbody = document.querySelector(".tabla-movimientos tbody") // Seleccionamos la clase tabla-movi para insentar cosas dentro de tbody
         tbody.innerHTML = ""
 
-        for (let i = 0; i < respuesta.movimientos.length; i++) {
-            const movimiento = respuesta.movimientos[i]
+        for (let i = 0; i < respuesta.data.length; i++) {
+            const movimiento = respuesta.data[i]
             const fila = document.createElement("tr")
-            fila.addEventListener("click", () => {
-                detallaMovimiento(movimiento.id)
-            })
 
 
             const dentro = `
@@ -85,7 +83,6 @@ function muestraMovimientos() {
                 <td>${movimiento.to_cantidad}</td>
             `
             fila.innerHTML = dentro
-
             tbody.appendChild(fila)
         }
     }
@@ -93,9 +90,9 @@ function muestraMovimientos() {
 
 
 function llamaApiMovimientos() {
-    xhr.open('GET', `http://localhost:5000/api/v1/movimientos`, true)
-    xhr.onload = muestraMovimientos
-    xhr.send()
+    xhr.open('GET', `http://localhost:5000/api/v1/movimientos`, true) //Petición de tipo GET
+    xhr.onload = muestraMovimientos 
+    xhr.send() // Envio de petición a la URL
 }
 
 function capturaFormMovimiento() {
@@ -167,21 +164,6 @@ function llamaApiModificaMovimiento(ev) {
     xhr.send(JSON.stringify(movimiento))
 }
 
-function llamaApiBorraMovimiento(ev) {
-    ev.preventDefault()
-    id = document.querySelector("#idMovimiento").value
-
-    if (!id) {
-        alert("Selecciona un movimiento antes!")
-        return
-    }
-
-    xhr.open("DELETE", `http://localhost:5000/api/v1/movimiento/${id}`, true)
-    xhr.onload = recibeRespuesta
-    xhr.send()
-
-}
-
 function llamaApiCreaMovimiento(ev) {
     ev.preventDefault()
 
@@ -199,16 +181,21 @@ function llamaApiCreaMovimiento(ev) {
     xhr.send(JSON.stringify(movimiento)) // Cadeniza el movimiento que deseamos enviar
 }
 
+function llamaApiStatus() {
+    xhr2.open ("GET", `http://localhost:5000/api/v1/status`, true)
+    xhr2.onload = recibeRespuestaStatus
+    xhr2.send()
+}
+
 window.onload = function() {
+// Todo lo que haya aquí adentro se ejecutará una vez que el HTML se renderice
+//evitando que el JS entre en juego antes de tiempo.  
     llamaApiMovimientos()
 
-    document.querySelector("#modificar")
-        .addEventListener("click", llamaApiModificaMovimiento)
+   /* document.querySelector("#modificar")
+        .addEventListener("click", llamaApiModificaMovimiento) */
 
-    document.querySelector("#borrar")
-        .addEventListener("click", llamaApiBorraMovimiento)
-
-    document.querySelector("#crear")
+    document.querySelector("#aceptar")
         .addEventListener("click", llamaApiCreaMovimiento)
 
 }
