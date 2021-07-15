@@ -16,12 +16,12 @@
             <table class="tabla-movimientos">
                 <thead>
                     <tr>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>From_Moneda</th>
-                        <th>From_Cantidad</th>
-                        <th>To_Moneda</th>
-                        <th>To_Cantidad</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Moneda_from</th>
+                        <th>Cantidad_from</th>
+                        <th>Moneda_to</th>
+                        <th>Cantidad_to</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -34,8 +34,8 @@
             <div class="row"> <!--Creamos una fila-->
                 <input type="hidden" id="idMovimiento">
                 <div class="column">
-                    <label for="From_Moneda">From_Moneda</label>
-                    <select name="From_Moneda" id="From_Moneda">
+                    <label for="moneda_from">Moneda_from</label>
+                    <select name="moneda_from" id="moneda_from">
                         <option value="EUR">Euro(EUR)</option>
                         <option value="BTC">Bitcoin(BTC)</option>
                         <option value="ETH">Ethereum(ETH)</option>
@@ -47,8 +47,8 @@
                     <div class="row">
                         <input type="hidden" id="idMovimiento">
                     <div class="column column-33">
-                    <label for="To_Moneda">To_Moneda</label>
-                    <select name="To_Moneda" id="To_Moneda">
+                    <label for="moneda_to">Moneda_to</label>
+                    <select name="moneda_to" id="moneda_to">
                         <option value="EUR">Euro(EUR)</option>
                         <option value="BTC">Bitcoin(BTC)</option>
                         <option value="ETH">Ethereum(ETH)</option>
@@ -61,12 +61,12 @@
             </div>
             <div class="row">
                 <div class="column column-33">
-                    <label for="From_Cantidad">From_Cantidad</label>
-                    <input type="number" name="From_Cantidad" id="From_Cantidad" step="any">
+                    <label for="cantidad_from">Cantidad_from</label>
+                    <input type="number" name="cantidad_from" id="cantidad_from" step="any">
                 </div>
                 <div class="column column-33">
-                    <label for="To_Cantidad">To_Cantidad</label>
-                    <input type="number" name="To_Cantidad" id="To_Cantidad" step="any">
+                    <label for="cantidad_to">Cantidad_to</label>
+                    <input type="number" name="cantidad_to" id="cantidad_to" step="any">
                 </div>
             </div>
             <div class="row">

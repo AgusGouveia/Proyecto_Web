@@ -49,11 +49,6 @@ function detallaMovimiento(id) {
     document.querySelector("#concepto").value = movimiento.concepto
     document.querySelector("#categoria").value = movimiento.categoria
     document.querySelector("#cantidad").value = movimiento.cantidad.toFixed(2)
-    if (movimiento.esGasto == 1) {
-        document.querySelector("#gasto").checked = true
-    } else {
-        document.querySelector("#ingreso").checked = true
-    }
 }
 
 function muestraMovimientos() { 
@@ -75,12 +70,12 @@ function muestraMovimientos() {
 
 
             const dentro = `
-                <td>${movimiento.fecha}</td>
-                <td>${movimiento.hora}</td>
-                <td>${movimiento.from_moneda}</td>
-                <td>${movimiento.from_cantidad}</td>
-                <td>${movimiento.to_moneda}</td>
-                <td>${movimiento.to_cantidad}</td>
+                <td>${movimiento.date}</td>
+                <td>${movimiento.time}</td>
+                <td>${movimiento.moneda_from}</td>
+                <td>${movimiento.cantidad_from}</td>
+                <td>${movimiento.moneda_to}</td>
+                <td>${movimiento.cantidad_to}</td>
             `
             fila.innerHTML = dentro
             tbody.appendChild(fila)
@@ -97,12 +92,12 @@ function llamaApiMovimientos() {
 
 function capturaFormMovimiento() {
     const movimiento = {} // Esta función captura los valores en el formulario y los guarda en la variable movimiento, en un objeto
-    movimiento.fecha = document.querySelector("#fecha").value
-    movimiento.hora = document.querySelector("#hora").value
-    movimiento.from_moneda = document.querySelector("#From_Moneda").value // movimiento es el objeto, from_moneda es el atributo
-    movimiento.from_cantidad = document.querySelector("#From_Cantidad").value
-    movimiento.to_moneda = document.querySelector("#To_Moneda").value
-    movimiento.to_cantidad = document.querySelector("#To_Cantidad").value
+    movimiento.date = document.querySelector("#date").value
+    movimiento.time = document.querySelector("#time").value
+    movimiento.moneda_from = document.querySelector("#moneda_from").value // movimiento es el objeto, from_moneda es el atributo
+    movimiento.cantidad_from = document.querySelector("#cantidad_from").value
+    movimiento.moneda_to = document.querySelector("#moneda_to").value
+    movimiento.cantidad_to = document.querySelector("#cantidad_to").value
     
 
     return movimiento    
@@ -117,21 +112,6 @@ function validar(movimiento) {
 
     if (movimiento.concepto === "") {
         alert("Concepto obligatorio")
-        return false
-    }
-
-    if (!document.querySelector("#gasto").checked && !document.querySelector("#ingreso").checked) {
-        alert("Elija tipo de movimiento")
-        return false
-    }
-
-    if (movimiento.esGasto && !movimiento.categoria) {
-        alert("Debe selecccionar categoria del gasto")
-        return false
-    }
-
-    if (!movimiento.esGasto && movimiento.categoria) {
-        alert("Un ingreso no puede tener categoria")
         return false
     }
 
