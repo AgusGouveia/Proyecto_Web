@@ -171,6 +171,7 @@ window.onload = function() {
 // Todo lo que haya aquí adentro se ejecutará una vez que el HTML se renderice
 //evitando que el JS entre en juego antes de tiempo.  
     llamaApiMovimientos()
+    llamaApiStatus()
 
    /* document.querySelector("#modificar")
         .addEventListener("click", llamaApiModificaMovimiento) */

@@ -81,9 +81,9 @@ def statusInversion():
         lista = dbManager.consultaMuchasSQL(totalEurosInvertidos) + dbManager.consultaMuchasSQL(cantidadToEuro)
         listaDic1 = lista[0]
         listaDic2 = lista[1]
-        saldoEurosInvertidos = listaDic1.get('SUM(cantidad_from)') - listaDic2.get('SUM(cantidad_to)')
+        saldoEurosInvertidos = listaDic1.get('SUM(cantidad_from)') - listaDic2.get('SUM(cantidad_to)') #De cripto a € (Criptos vendidas por €)
         
         #lista3 = dbManager.consultaMuchasSQL(saldoEurosInvertidos)
-        return jsonify ({'status': 'success', 'Total de € Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo de € Invertidos': saldoEurosInvertidos})
+        return jsonify ({'status': 'success', 'data': {'Total de € Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo de € Invertidos': saldoEurosInvertidos}})
     except sqlite3.Error as e:
         return jsonify({'status': 'fail', 'mensaje': str(e)})
