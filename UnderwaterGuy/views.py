@@ -27,7 +27,7 @@ def movimientosAPI():
 
 #Me devuelve la respuesta de la API de ConinMarketCap
 @app.route('/api/v1/par/<moneda_from>/<moneda_to>/<amount>')
-@app.route('/api/v1/par/<_from>/<_to>')
+@app.route('/api/v1/par/<moneda_from>/<moneda_to>')
 def par(moneda_from, moneda_to, amount = 1.0):
     url = f"https://pro-api.coinmarketcap.com/v1/tools/price-conversion?amount={amount}&symbol={moneda_from}&convert={moneda_to}&CMC_PRO_API_KEY=46341c71-80dc-48ec-8a33-056636905126"
     res = requests.get(url) 
@@ -50,23 +50,12 @@ def detalleMovimiento(id=None):
                 return jsonify({"status": "fail", "mensaje": "data no encontrada"}), HTTPStatus.BAD_REQUEST
 
         if request.method == 'POST':
-             #if request.json['from_moneda'] != 'EUR':
-                #if calculaSaldoNecesario(request.json['from_moneda']) < float(request.json['from_cantidad']):
-                    #return jsonify({"status": "fail", "mensaje": "Saldo insuficiente"}), HTTPStatus.OK
-            
-            #datos = request.json
-            #datos["fecha"] = str(fecha)
-            #datos["hora"] = str(hora)
-
-            #HAY QUE VALIDAR que la moneda sea EUR. De no serlo, comprobar que exista suficiente saldo para grabar el movimiento
-
-            #Abrimos la base de la datos con la tabla modificar (falta agregar los pares de monedas)
             dbManager.modificaTablaSQL("""
                 INSERT INTO movimientos 
                        (date, time, moneda_from, cantidad_from, moneda_to, cantidad_to)
                 VALUES (:date, :time, :moneda_from, :cantidad_from, :moneda_to, :cantidad_to) 
                 """, request.json)
-            return jsonify({"status": "success", "id": "Nuevo id creado", "monedas": "Aquí irian monedas from y to"}), HTTPStatus.CREATED
+            return jsonify({"status": "success", "id": "Nuevo id creado", "moneda_from": request.json['moneda_from'], 'moneda_to': request.json['moneda_to']}), HTTPStatus.CREATED
 
 
     except sqlite3.Error as e:
@@ -125,7 +114,7 @@ def statusInversion():
         listaDic1 = lista[0]
         listaDic2 = lista[1]
         saldoEurosInvertidos = listaDic1.get('SUM(cantidad_from)') - listaDic2.get('SUM(cantidad_to)') #De cripto a € (Criptos vendidas por €, o sea, saldo de € ACTUAL)
-        Resultado = (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)') + saldoEurosInvertidos)  
-        return jsonify ({'status': 'success', 'data': {'Total_€_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_€_Invertidos': saldoEurosInvertidos, 'Valor_Actual_Cryptos': ValorActualCryptos['Euros'], 'Resultado': Resultado}})
+        resultado = (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)') + saldoEurosInvertidos)  
+        return jsonify ({'status': 'success', 'data': {'Total_€_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_€_Invertidos': saldoEurosInvertidos, 'Valor_Actual_Cryptos': ValorActualCryptos['Euros'], 'Resultado': resultado}})
     except sqlite3.Error as e:
         return jsonify({'status': 'fail', 'mensaje': str(e)})
