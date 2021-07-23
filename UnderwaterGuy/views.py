@@ -3,12 +3,11 @@ from UnderwaterGuy.dataaccess import DBmanager
 from flask import jsonify, render_template, request, Response
 import sqlite3, requests
 from http import HTTPStatus
-from datetime import date, time
+from datetime import date, time, datetime
 import json
 
 dbManager = DBmanager(app.config.get('DATABASE'))
-
-
+    
 #Me devuelve el esqueleto basico de HTML
 @app.route('/')
 def listaMovimientos():
@@ -17,7 +16,7 @@ def listaMovimientos():
 #Muestra/añade los movimientos existentes en la base de dato a nuestro HTML
 @app.route('/api/v1/movimientos')
 def movimientosAPI():
-    query = "SELECT * FROM movimientos ORDER BY date;"
+    query = "SELECT * FROM movimientos ORDER BY date DESC;"
 
     try:
         lista = dbManager.consultaMuchasSQL(query)
@@ -37,25 +36,40 @@ def par(moneda_from, moneda_to, amount = 1.0):
 @app.route('/api/v1/movimiento/<int:id>', methods=['GET'])
 @app.route('/api/v1/movimiento', methods=['POST'])
 def detalleMovimiento(id=None):
+    today = date.today()
+    hora = datetime.now()
+    hora = hora.strftime('%H:%M:%S')
+    fecha = today.isoformat()
+
 
     try:
         if request.method == 'GET':
             data = dbManager.consultaUnaSQL("SELECT * FROM movimientos WHERE id = ?", [id])
             if data:
-                return jsonify({
-                    "status": "success",
-                    "data": data
-                })
+                return jsonify({"status": "success", "data": data})
             else:
                 return jsonify({"status": "fail", "mensaje": "data no encontrada"}), HTTPStatus.BAD_REQUEST
 
         if request.method == 'POST':
-            dbManager.modificaTablaSQL("""
-                INSERT INTO movimientos 
-                       (date, time, moneda_from, cantidad_from, moneda_to, cantidad_to)
-                VALUES (:date, :time, :moneda_from, :cantidad_from, :moneda_to, :cantidad_to) 
-                """, request.json)
-            return jsonify({"status": "success", "id": "Nuevo id creado", "moneda_from": request.json['moneda_from'], 'moneda_to': request.json['moneda_to']}), HTTPStatus.CREATED
+            datos = request.json
+            datos['date'] = fecha
+            datos['time'] = hora
+
+            if request.json['moneda_from'] != 'EUR':
+                if request.json['moneda_from'] == request.json['moneda_to']:
+                    return jsonify({"status": "fail", "mensaje": "Ah sos retroll", "consejo": "Intenta con otra moneda, crack"}), HTTPStatus.OK
+
+            saldoExistente = calculaSaldoExistente()
+            if float(request.json['cantidad_from']) > saldoExistente['Monedas_Disponibles'][request.json['moneda_from']]:
+                return jsonify({"status": "fail", "mensaje": "Saldo Insuficiente"}), HTTPStatus.OK
+
+            else:
+                dbManager.modificaTablaSQL("""
+                    INSERT INTO movimientos 
+                        (date, time, moneda_from, cantidad_from, moneda_to, cantidad_to)
+                    VALUES (:date, :time, :moneda_from, :cantidad_from, :moneda_to, :cantidad_to) 
+                    """, request.json)
+                return jsonify({"status": "success", "id": "Nuevo id creado", "Vendiste": request.json['moneda_from'], 'Compraste': request.json['moneda_to']}), HTTPStatus.CREATED
 
 
     except sqlite3.Error as e:
@@ -64,6 +78,13 @@ def detalleMovimiento(id=None):
 #Devolverá el estado de la inversión
 @app.route('/api/v1/status')
 def statusInversion():
+    try:
+        status = calculaSaldoExistente()
+        return jsonify ({'status': 'success', 'data': status})
+    except sqlite3.Error as e:
+        return jsonify({'status': 'fail', 'mensaje': str(e)})
+
+def calculaSaldoExistente():
     totalEurosInvertidos = "SELECT SUM(cantidad_from) FROM movimientos WHERE moneda_from = 'EUR';" #Invertido
     cantidadToEuro = "SELECT SUM(cantidad_to) FROM movimientos WHERE moneda_to = 'EUR';"
     
@@ -72,7 +93,16 @@ def statusInversion():
         'BTC': 'Bitcoin(BTC)',
         'ETH': 'Ethereum(ETH)',
         'LTC': 'Litecoin(LTC)',
-        'DOGE': 'Dogecoin(DOGE)'
+        'DOGE': 'Dogecoin(DOGE)',
+        'BNB': 'BinanceCoin(BNB)',
+        'EOS': 'EOS(EOS)',
+        'XLM': 'Stellar(XLM)',
+        'TRX': 'Tron(TRX)',
+        'XRP': 'Ripple(XRP)',
+        'BCH': 'BitcoinCash(BCH)',
+        'USDT': 'Tether(USDT)',
+        'BSV': 'BitcoinSV(BSV)',
+        'ADA': 'Cardano(ADA)'
     }
 
     cantidadTo = {
@@ -80,22 +110,49 @@ def statusInversion():
         'BTC': 0,
         'ETH': 0,
         'LTC': 0,
-        'DOGE': 0
+        'DOGE': 0,
+        'BNB': 0,
+        'EOS': 0,
+        'XLM': 0,
+        'TRX': 0,
+        'XRP': 0,
+        'BCH': 0,
+        'USDT': 0,
+        'BSV': 0,
+        'ADA': 0
     }
 
     cantidadFrom = {
-        'EUR': 0,
+       'EUR': 0,
         'BTC': 0,
         'ETH': 0,
         'LTC': 0,
-        'DOGE': 0
+        'DOGE': 0,
+        'BNB': 0,
+        'EOS': 0,
+        'XLM': 0,
+        'TRX': 0,
+        'XRP': 0,
+        'BCH': 0,
+        'USDT': 0,
+        'BSV': 0,
+        'ADA': 0
     }
     total = {
         'EUR': 0,
         'BTC': 0,
         'ETH': 0,
         'LTC': 0,
-        'DOGE': 0
+        'DOGE': 0,
+        'BNB': 0,
+        'EOS': 0,
+        'XLM': 0,
+        'TRX': 0,
+        'XRP': 0,
+        'BCH': 0,
+        'USDT': 0,
+        'BSV': 0,
+        'ADA': 0
     }
     ValorActualCryptos = {'Euros' : 0}
 
@@ -104,17 +161,16 @@ def statusInversion():
         cantidadTo[clave] = (cryptosCompradas[0].get('total')) or 0
         cryptosVendidas = dbManager.consultaMuchasSQL("SELECT SUM(cantidad_from) as total FROM movimientos WHERE moneda_from = ?", [clave])
         cantidadFrom[clave] = (cryptosVendidas[0].get('total')) or 0
-        if cantidadTo.get(clave) and cantidadFrom.get(clave) != None:
+        if cantidadTo.get(clave) != None and cantidadFrom.get(clave) != None:
             total[clave] = float(cantidadTo.get(clave)) - float(cantidadFrom.get(clave))
         if float(total.get(clave)) > 0:
             ValorActualCryptos['Euros'] += par(clave, 'EUR', float(total.get(clave)))
-       
-    try:
-        lista = dbManager.consultaMuchasSQL(totalEurosInvertidos) + dbManager.consultaMuchasSQL(cantidadToEuro)
-        listaDic1 = lista[0]
-        listaDic2 = lista[1]
-        saldoEurosInvertidos = listaDic1.get('SUM(cantidad_from)') - listaDic2.get('SUM(cantidad_to)') #De cripto a € (Criptos vendidas por €, o sea, saldo de € ACTUAL)
-        resultado = (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)') + saldoEurosInvertidos)  
-        return jsonify ({'status': 'success', 'data': {'Total_€_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_€_Invertidos': saldoEurosInvertidos, 'Valor_Actual_Cryptos': ValorActualCryptos['Euros'], 'Resultado': resultado}})
-    except sqlite3.Error as e:
-        return jsonify({'status': 'fail', 'mensaje': str(e)})
+    totalMonedas = total
+    
+    lista = dbManager.consultaMuchasSQL(totalEurosInvertidos) + dbManager.consultaMuchasSQL(cantidadToEuro)
+    listaDic1 = lista[0]
+    listaDic2 = lista[1]
+    saldoEurosInvertidos = listaDic2.get('SUM(cantidad_to)') - listaDic1.get('SUM(cantidad_from)') #De cripto a € (Criptos vendidas por €, o sea, saldo de € ACTUAL)
+    resultado = (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)') + saldoEurosInvertidos)  
+    data = {'Total_Euros_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_Euros_Invertidos': saldoEurosInvertidos, 'Valor_Actual_Cryptos_En_Euros': ValorActualCryptos['Euros'], 'Resultado': resultado, 'Monedas_Disponibles': totalMonedas}
+    return data

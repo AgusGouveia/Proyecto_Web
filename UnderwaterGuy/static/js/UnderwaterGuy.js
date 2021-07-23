@@ -7,7 +7,17 @@ const categorias = {
     BTC: 'Bitcoin(BTC)',
     ETH: 'Ethereum(ETH)',
     LTC: 'Litecoin(LTC)',
-    DOGE: 'Dogecoin(DOGE)'
+    DOGE: 'Dogecoin(DOGE)',
+    BNB: 'BinanceCoin(BNB)',
+    EOS: 'EOS(EOS)',
+    XLM: 'Stellar(XLM)',
+    TRX: 'Tron(TRX)',
+    XRP: 'Ripple(XRP)',
+    BCH: 'BitcoinCash(BCH)',
+    USDT: 'Tether(USDT)',
+    BSV: 'BitcoinSV(BSV)',
+    ADA: 'Cardano(ADA)'
+
 }
 
 let losMovimientos 
@@ -27,28 +37,6 @@ function recibeRespuesta() {
 
         llamaApiMovimientos()
     }
-}
-
-function detallaMovimiento(id) {
-
-    //movimiento = losMovimientos.filter(item => item.id == id )[0]
-
-    let movimiento
-    for (let i=0; i<losMovimientos.length; i++) {
-        const item = losMovimientos[i]
-        if (item.id == id ) {
-            movimiento = item
-            break
-        }
-    }
-
-    if (!movimiento) return
-
-    document.querySelector("#idMovimiento").value = id
-    document.querySelector("#fecha").value = movimiento.fecha
-    document.querySelector("#concepto").value = movimiento.concepto
-    document.querySelector("#categoria").value = movimiento.categoria
-    document.querySelector("#cantidad").value = movimiento.cantidad.toFixed(2)
 }
 
 function muestraMovimientos() { 
@@ -121,27 +109,6 @@ function validar(movimiento) {
     }
 
     return true
-}
-
-function llamaApiModificaMovimiento(ev) {
-    ev.preventDefault()
-    id = document.querySelector("#idMovimiento").value
-    if (!id) {
-        alert("Selecciona un movimiento antes!")
-        return
-    }
-    const movimiento = capturaFormMovimiento()
-    if (!validar(movimiento)) {
-        return
-    }
-
-
-    xhr.open("PUT", `http://localhost:5000/api/v1/movimiento/${id}`, true)
-    xhr.onload = recibeRespuesta
-
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-
-    xhr.send(JSON.stringify(movimiento))
 }
 
 function llamaApiCreaMovimiento(ev) {
