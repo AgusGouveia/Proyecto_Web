@@ -170,29 +170,36 @@ def calculaSaldoExistente():
     }
     ValorActualCryptos = {'Euros' : 0}
 
-    for clave in categorias:
-        cryptosCompradas = dbManager.consultaMuchasSQL("SELECT SUM(cantidad_to) as total FROM movimientos WHERE moneda_to = ?", [clave])
-        cantidadTo[clave] = (cryptosCompradas[0].get('total')) or 0
-        cryptosVendidas = dbManager.consultaMuchasSQL("SELECT SUM(cantidad_from) as total FROM movimientos WHERE moneda_from = ?", [clave])
-        cantidadFrom[clave] = (cryptosVendidas[0].get('total')) or 0
-        if cantidadTo.get(clave) != None and cantidadFrom.get(clave) != None:
-            total[clave] = float(cantidadTo.get(clave)) - float(cantidadFrom.get(clave))
-        if float(total.get(clave)) > 0:
-            llamadaApiStatus = par(clave, 'EUR', float(total.get(clave)))
-            transformaJson = json.loads(llamadaApiStatus.data)
-            valorEnEuros = transformaJson['data']['quote']['EUR']['price']
-            ValorActualCryptos['Euros'] += valorEnEuros
-    totalMonedas = total
-        
-    
-    lista = dbManager.consultaMuchasSQL(totalEurosInvertidos) + dbManager.consultaMuchasSQL(cantidadToEuro)
-    listaDic1 = lista[0]
-    listaDic2 = lista[1]
-    if listaDic2.get('SUM(cantidad_to)') == None:
-        data = {'Total_Euros_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_Euros_Invertidos': 0, 'Valor_Actual_Cryptos_En_Euros': ValorActualCryptos['Euros'], 'Valor_Actual_Inversion': (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)')), 'Monedas_Disponibles': totalMonedas, 'Resultado': (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)'))}
+    numeroTransacciones = dbManager.consultaMuchasSQL("SELECT COUNT(*) AS num FROM movimientos")
+    if numeroTransacciones[0]['num'] == 0:
+        data = {'Total_Euros_Invertidos': 0, 'Saldo_Euros_Invertidos': 0, 'Valor_Actual_Cryptos_En_Euros': 0, 'Valor_Actual_Inversion': 0, 'Monedas_Disponibles': total, 'Resultado': 0}
         return data
-    saldoEurosInvertidos = listaDic2.get('SUM(cantidad_to)') - listaDic1.get('SUM(cantidad_from)') #De cripto a € (Criptos vendidas por €, o sea, saldo de € ACTUAL)
-    ValorActualInversion = (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)') + saldoEurosInvertidos)
-    profit = ValorActualInversion - listaDic1.get('SUM(cantidad_from)')
-    data = {'Total_Euros_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_Euros_Invertidos': saldoEurosInvertidos, 'Valor_Actual_Cryptos_En_Euros': ValorActualCryptos['Euros'], 'Valor_Actual_Inversion': ValorActualInversion, 'Monedas_Disponibles': totalMonedas, 'Resultado': profit}
-    return data
+
+    else:
+
+        for clave in categorias:
+            cryptosCompradas = dbManager.consultaMuchasSQL("SELECT SUM(cantidad_to) as total FROM movimientos WHERE moneda_to = ?", [clave])
+            cantidadTo[clave] = (cryptosCompradas[0].get('total')) or 0
+            cryptosVendidas = dbManager.consultaMuchasSQL("SELECT SUM(cantidad_from) as total FROM movimientos WHERE moneda_from = ?", [clave])
+            cantidadFrom[clave] = (cryptosVendidas[0].get('total')) or 0
+            if cantidadTo.get(clave) != None and cantidadFrom.get(clave) != None:
+                total[clave] = float(cantidadTo.get(clave)) - float(cantidadFrom.get(clave))
+            if float(total.get(clave)) > 0:
+                llamadaApiStatus = par(clave, 'EUR', float(total.get(clave)))
+                transformaJson = json.loads(llamadaApiStatus.data)
+                valorEnEuros = transformaJson['data']['quote']['EUR']['price']
+                ValorActualCryptos['Euros'] += valorEnEuros
+        totalMonedas = total
+            
+        
+        lista = dbManager.consultaMuchasSQL(totalEurosInvertidos) + dbManager.consultaMuchasSQL(cantidadToEuro)
+        listaDic1 = lista[0]
+        listaDic2 = lista[1]
+        if listaDic2.get('SUM(cantidad_to)') == None:
+            data = {'Total_Euros_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_Euros_Invertidos': 0, 'Valor_Actual_Cryptos_En_Euros': ValorActualCryptos['Euros'], 'Valor_Actual_Inversion': (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)')), 'Monedas_Disponibles': totalMonedas, 'Resultado': (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)'))}
+            return data
+        saldoEurosInvertidos = listaDic2.get('SUM(cantidad_to)') - listaDic1.get('SUM(cantidad_from)') #De cripto a € (Criptos vendidas por €, o sea, saldo de € ACTUAL)
+        ValorActualInversion = (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)') + saldoEurosInvertidos)
+        profit = ValorActualInversion - listaDic1.get('SUM(cantidad_from)')
+        data = {'Total_Euros_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_Euros_Invertidos': saldoEurosInvertidos, 'Valor_Actual_Cryptos_En_Euros': ValorActualCryptos['Euros'], 'Valor_Actual_Inversion': ValorActualInversion, 'Monedas_Disponibles': totalMonedas, 'Resultado': profit}
+        return data
