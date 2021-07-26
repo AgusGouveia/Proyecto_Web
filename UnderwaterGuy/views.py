@@ -1,3 +1,4 @@
+from os import abort
 from UnderwaterGuy import app
 from UnderwaterGuy.dataaccess import DBmanager
 from flask import jsonify, render_template, request, Response
@@ -30,7 +31,7 @@ def movimientosAPI():
 def par(moneda_from, moneda_to, amount = 1.0):
     url = f"https://pro-api.coinmarketcap.com/v1/tools/price-conversion?amount={amount}&symbol={moneda_from}&convert={moneda_to}&CMC_PRO_API_KEY=46341c71-80dc-48ec-8a33-056636905126"
     res = requests.get(url) 
-    return res.json()['data']['quote']['EUR']['price'] #Response es un objeto de tipo respuesta del metodo requests(He modificado esta linea)
+    return Response(res) #Response es un objeto de tipo respuesta del metodo requests(He modificado esta linea)
 
 #Según la pètición, me devuelve 1 movimiento mediante el ID o realiza un POST
 @app.route('/api/v1/movimiento/<int:id>', methods=['GET'])
@@ -40,7 +41,6 @@ def detalleMovimiento(id=None):
     hora = datetime.now()
     hora = hora.strftime('%H:%M:%S')
     fecha = today.isoformat()
-
 
     try:
         if request.method == 'GET':
@@ -55,13 +55,18 @@ def detalleMovimiento(id=None):
             datos['date'] = fecha
             datos['time'] = hora
 
-            if request.json['moneda_from'] != 'EUR':
+            if request.json['moneda_from'] != 'EUR' or request.json['moneda_from'] and request.json['moneda_to'] == 'EUR':
                 if request.json['moneda_from'] == request.json['moneda_to']:
-                    return jsonify({"status": "fail", "mensaje": "Ah sos retroll", "consejo": "Intenta con otra moneda, crack"}), HTTPStatus.OK
+                    return jsonify({"status": "fail", "mensaje": "Las monedas tienen que ser diferentes"}), HTTPStatus.OK
 
             saldoExistente = calculaSaldoExistente()
-            if float(request.json['cantidad_from']) > saldoExistente['Monedas_Disponibles'][request.json['moneda_from']]:
-                return jsonify({"status": "fail", "mensaje": "Saldo Insuficiente"}), HTTPStatus.OK
+            calculaCantidadTo = par(request.json['moneda_from'], request.json['moneda_to'], float(request.json['cantidad_from']))
+            transformaAJson = json.loads(calculaCantidadTo.data)
+            valorCantidadTo = transformaAJson['data']['quote'][request.json['moneda_to']]['price']
+            request.json['cantidad_to'] = valorCantidadTo
+
+            if (float(request.json['cantidad_from']) > saldoExistente['Monedas_Disponibles'][request.json['moneda_from']] and request.json['moneda_from'] != 'EUR') or (float(request.json['cantidad_to']) != valorCantidadTo):
+                return jsonify({"status": "fail", "mensaje": "Saldo insuficiente"}), HTTPStatus.OK
 
             else:
                 dbManager.modificaTablaSQL("""
@@ -69,8 +74,8 @@ def detalleMovimiento(id=None):
                         (date, time, moneda_from, cantidad_from, moneda_to, cantidad_to)
                     VALUES (:date, :time, :moneda_from, :cantidad_from, :moneda_to, :cantidad_to) 
                     """, request.json)
-                return jsonify({"status": "success", "id": "Nuevo id creado", "Vendiste": request.json['moneda_from'], 'Compraste': request.json['moneda_to']}), HTTPStatus.CREATED
-
+                return jsonify({"status": "success", "mensaje": "Compra realizada", "id": "Nuevo id creado", "Vendiste": request.json['moneda_from'], 'Compraste': request.json['moneda_to']}), HTTPStatus.CREATED
+                
 
     except sqlite3.Error as e:
         return jsonify({"status": "fail", "mensaje": "Error en base de datos: {}".format(e)}), HTTPStatus.BAD_REQUEST
@@ -164,13 +169,17 @@ def calculaSaldoExistente():
         if cantidadTo.get(clave) != None and cantidadFrom.get(clave) != None:
             total[clave] = float(cantidadTo.get(clave)) - float(cantidadFrom.get(clave))
         if float(total.get(clave)) > 0:
-            ValorActualCryptos['Euros'] += par(clave, 'EUR', float(total.get(clave)))
+            llamadaApiStatus = par(clave, 'EUR', float(total.get(clave)))
+            transformaJson = json.loads(llamadaApiStatus.data)
+            valorEnEuros = transformaJson['data']['quote']['EUR']['price']
+            ValorActualCryptos['Euros'] += valorEnEuros
     totalMonedas = total
     
     lista = dbManager.consultaMuchasSQL(totalEurosInvertidos) + dbManager.consultaMuchasSQL(cantidadToEuro)
     listaDic1 = lista[0]
     listaDic2 = lista[1]
     saldoEurosInvertidos = listaDic2.get('SUM(cantidad_to)') - listaDic1.get('SUM(cantidad_from)') #De cripto a € (Criptos vendidas por €, o sea, saldo de € ACTUAL)
-    resultado = (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)') + saldoEurosInvertidos)  
-    data = {'Total_Euros_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_Euros_Invertidos': saldoEurosInvertidos, 'Valor_Actual_Cryptos_En_Euros': ValorActualCryptos['Euros'], 'Resultado': resultado, 'Monedas_Disponibles': totalMonedas}
+    ValorActualInversion = (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)') + saldoEurosInvertidos)
+    profit = ValorActualInversion - listaDic1.get('SUM(cantidad_from)')
+    data = {'Total_Euros_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_Euros_Invertidos': saldoEurosInvertidos, 'Valor_Actual_Cryptos_En_Euros': ValorActualCryptos['Euros'], 'Valor_Actual_Inversion': ValorActualInversion, 'Monedas_Disponibles': totalMonedas, 'Resultado': profit}
     return data

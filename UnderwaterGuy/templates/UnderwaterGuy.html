@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UnderwaterGuy</title>
     <link rel="stylesheet" href="/static/css/milligram.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
     <script src="/static/js/UnderwaterGuy.js"></script>
 </head>
 <body>
@@ -26,9 +27,31 @@
                 </thead>
                 <tbody></tbody>
             </table>
+            <div class="tabla-status">
+                <div class="container" id ="tabla-status" style="text-align: left; font-size: 20px; border: 1px solid black;"> 
+                    <div class="row">
+                        <div class="column">
+                            <label for="invertido">Total invertido:</label>
+                            <input type="text" name="invertido" id="invertido" disabled>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="column">
+                            <label for="valor-actual">Valor actual de tu inversion:</label>
+                            <input type="text" name="valor-actual" id="valor-inversion" disabled>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="column">
+                            <label for="resultado">Resultado de tus inversiones:</label>
+                            <input type="text" name="resultado" id="resultado" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
-    <hr> <!-- Linea horizontal para separar un tema/parrafo de otro -->
+<hr> <!-- Linea horizontal para separar un tema/parrafo de otro -->
     <div class="detail-movimiento container">
         <form>
             <div class="row"> <!--Creamos una fila-->
@@ -84,7 +107,7 @@
                 </div>
                 <div class="column column-33">
                     <label for="cantidad_to">Cantidad_to</label>
-                    <input type="number" name="cantidad_to" id="cantidad_to" step="any">
+                    <input type="text" name="cantidad_to" id="cantidad_to" disabled>
                 </div>
             </div>
             <div class="row">

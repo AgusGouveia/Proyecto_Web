@@ -1,0 +1,17 @@
+/* La carpeta static guardará los recursos 
+a los que se acceden desde el NAVEGADOR */
+
+.tabla-movimientos tbody tr:hover {
+    background-color: rgb(142, 223, 255);
+}
+
+.lista-movimientos {
+    
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+}
+
+.tabla-status {
+    margin-top: 10px;
+    margin-left: 100px;
+}
