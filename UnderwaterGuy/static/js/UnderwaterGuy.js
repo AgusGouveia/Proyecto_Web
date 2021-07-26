@@ -39,6 +39,43 @@ function recibeRespuestaStatus() {
         valorActual.value = data.Valor_Actual_Inversion.toFixed(8) + "€"
         resultadoInversion.value = data.Resultado.toFixed(8) + "€"
         
+        if (data.Resultado < 0) {
+            resultadoInversion.classList.add("rojo")
+            valorActual.classList.add("rojo")
+        }
+        else {
+            resultadoInversion.classList.add("verde")
+            valorActual.classList.add("verde")
+        }
+    }
+    else {
+        alert("Se ha producido un error interno al calcular el estado de tu inversión: " + this.status)
+    }
+
+}
+
+function llamaApiConversion(ev) {
+    ev.preventDefault()
+    const movimientosFormulario = capturaFormMovimiento()
+
+    xhr3.open('GET', `http://localhost:5000/api/v1/par/${movimientosFormulario.moneda_from}/${movimientosFormulario.moneda_to}`, true) //Petición de tipo GET
+    xhr3.onload = recibeRespuestaConversion
+    xhr3.send() // Envio de petición a la URL
+}
+
+function recibeRespuestaConversion() {
+    
+
+    if (this.readyState === 4 && (this.status === 200 || this.status === 201)) {
+        const respuestaConversion = JSON.parse(this.responseText)
+        
+
+        const movimientosFormulario2 = capturaFormMovimiento() // Capturo los valores que me envian en el formulario
+        cantidadFrom = movimientosFormulario2.cantidad_from
+        monedaTo = movimientosFormulario2.moneda_to // Me devuelve la moneda que envié en el formulario para poder insertarlaa abajo
+        conversionCantidadTo = respuestaConversion.data.quote[monedaTo].price
+        const conversionRenderizada = document.getElementById('cantidad_to')
+        conversionRenderizada.value = conversionCantidadTo.toFixed(8)
     }
     else {
         alert("Se ha producido un error interno al calcular el estado de tu inversión: " + this.status)
@@ -49,7 +86,7 @@ function recibeRespuestaStatus() {
 function recibeRespuesta() {
     if (this.readyState === 4 && (this.status === 200 || this.status === 201)) {
         const respuesta = JSON.parse(this.responseText)
-        console.log(respuesta)
+
 
         if (respuesta.status !== 'success') {
             alert("Se ha producido un error en acceso al servidor: " + respuesta.mensaje)
@@ -91,6 +128,7 @@ function muestraMovimientos() {
             fila.innerHTML = dentro
             tbody.appendChild(fila)
         }
+        llamaApiStatus()
     }
     else {
         alert("Se ha producido un error interno al mostrar tus movimientos: " + this.status)
@@ -114,37 +152,16 @@ function capturaFormMovimiento() {
     return movimiento    
 }   
 
-
-/*function validar(movimiento) {
-
-    if (movimiento.concepto === "") {
-        alert("Concepto obligatorio")
-        return false
-    }
-
-    if (movimiento.cantidad <= 0) {
-        alert("La cantidad ha de ser positiva")
-        return false
-    }
-
-    return true
-}*/
-
 function llamaApiCreaMovimiento(ev) {
     ev.preventDefault()
 
-
-   const movimiento = capturaFormMovimiento()
-    /*if (!validar(movimiento)) {
-        return
-    }*/
-
+    const movimiento = capturaFormMovimiento()
 
     xhr.open("POST", `http://localhost:5000/api/v1/movimiento`, true)
     xhr.onload = recibeRespuesta //El metodo onload es el que se mantiene esperando la respuesta asincrona para luego procesarla
 
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8") // Informamos al servidor que los datos que vamos a mandar son de tipo JSON
-
+    
     xhr.send(JSON.stringify(movimiento)) // Cadeniza el movimiento que deseamos enviar
 }
 
@@ -162,9 +179,10 @@ window.onload = function() {
     
     llamaApiMovimientos()
     llamaApiStatus()
+    
 
-   /* document.querySelector("#modificar")
-        .addEventListener("click", llamaApiModificaMovimiento) */
+    document.getElementById('calcular')
+        .addEventListener("click", llamaApiConversion)
 
     document.querySelector("#aceptar")
         .addEventListener("click", llamaApiCreaMovimiento)

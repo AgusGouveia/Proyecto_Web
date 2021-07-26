@@ -1,4 +1,6 @@
 from os import abort
+
+from werkzeug.wrappers import response
 from UnderwaterGuy import app
 from UnderwaterGuy.dataaccess import DBmanager
 from flask import jsonify, render_template, request, Response
@@ -24,6 +26,8 @@ def movimientosAPI():
         return jsonify({'status': 'success', 'data': lista})
     except sqlite3.Error as e:
         return jsonify({'status': 'fail', 'mensaje': str(e)})
+    except:
+        return jsonify({'status': 'fail', 'mensaje': "Algo ha salido mal en nuestros servidores"}), HTTPStatus.BAD_REQUEST
 
 #Me devuelve la respuesta de la API de ConinMarketCap
 @app.route('/api/v1/par/<moneda_from>/<moneda_to>/<amount>')
@@ -31,7 +35,7 @@ def movimientosAPI():
 def par(moneda_from, moneda_to, amount = 1.0):
     url = f"https://pro-api.coinmarketcap.com/v1/tools/price-conversion?amount={amount}&symbol={moneda_from}&convert={moneda_to}&CMC_PRO_API_KEY=46341c71-80dc-48ec-8a33-056636905126"
     res = requests.get(url) 
-    return Response(res) #Response es un objeto de tipo respuesta del metodo requests(He modificado esta linea)
+    return Response(res) #Response es un objeto de tipo respuesta del metodo requests
 
 #Según la pètición, me devuelve 1 movimiento mediante el ID o realiza un POST
 @app.route('/api/v1/movimiento/<int:id>', methods=['GET'])
@@ -79,17 +83,22 @@ def detalleMovimiento(id=None):
 
     except sqlite3.Error as e:
         return jsonify({"status": "fail", "mensaje": "Error en base de datos: {}".format(e)}), HTTPStatus.BAD_REQUEST
-
+    except:
+        return jsonify({"status": "fail", "mensaje": "Parece que algo ha fallado en nuestros servidores"}), HTTPStatus.BAD_REQUEST
 #Devolverá el estado de la inversión
 @app.route('/api/v1/status')
 def statusInversion():
     try:
         status = calculaSaldoExistente()
+        print(status)
         return jsonify ({'status': 'success', 'data': status})
     except sqlite3.Error as e:
         return jsonify({'status': 'fail', 'mensaje': str(e)})
+    except:
+        return jsonify({'status': 'fail', 'mensaje': "Algo ha salido mal en nuestros servidores"}), HTTPStatus.BAD_REQUEST
 
 def calculaSaldoExistente():
+
     totalEurosInvertidos = "SELECT SUM(cantidad_from) FROM movimientos WHERE moneda_from = 'EUR';" #Invertido
     cantidadToEuro = "SELECT SUM(cantidad_to) FROM movimientos WHERE moneda_to = 'EUR';"
     
@@ -174,10 +183,14 @@ def calculaSaldoExistente():
             valorEnEuros = transformaJson['data']['quote']['EUR']['price']
             ValorActualCryptos['Euros'] += valorEnEuros
     totalMonedas = total
+        
     
     lista = dbManager.consultaMuchasSQL(totalEurosInvertidos) + dbManager.consultaMuchasSQL(cantidadToEuro)
     listaDic1 = lista[0]
     listaDic2 = lista[1]
+    if listaDic2.get('SUM(cantidad_to)') == None:
+        data = {'Total_Euros_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_Euros_Invertidos': 0, 'Valor_Actual_Cryptos_En_Euros': ValorActualCryptos['Euros'], 'Valor_Actual_Inversion': (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)')), 'Monedas_Disponibles': totalMonedas, 'Resultado': (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)'))}
+        return data
     saldoEurosInvertidos = listaDic2.get('SUM(cantidad_to)') - listaDic1.get('SUM(cantidad_from)') #De cripto a € (Criptos vendidas por €, o sea, saldo de € ACTUAL)
     ValorActualInversion = (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)') + saldoEurosInvertidos)
     profit = ValorActualInversion - listaDic1.get('SUM(cantidad_from)')
