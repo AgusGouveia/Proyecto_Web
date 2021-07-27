@@ -39,7 +39,7 @@ function recibeRespuestaStatus() {
         valorActual.value = data.Valor_Actual_Inversion.toFixed(8) + "€"
         resultadoInversion.value = data.Resultado.toFixed(8) + "€"
         
-        if (data.Resultado < 0) {
+        if (data.Resultado < data.Total_Euros_Invertidos) {
             resultadoInversion.classList.add("rojo")
             valorActual.classList.add("rojo")
         }
@@ -87,15 +87,21 @@ function recibeRespuesta() {
     if (this.readyState === 4 && (this.status === 200 || this.status === 201)) {
         const respuesta = JSON.parse(this.responseText)
 
+     
 
         if (respuesta.status !== 'success') {
             alert("Se ha producido un error en acceso al servidor: " + respuesta.mensaje)
             return
         }
 
+
         alert(respuesta.mensaje)
 
         llamaApiMovimientos()
+    }
+    else {
+        const respuesta = JSON.parse(this.responseText)
+        alert("Se ha producido un error: " + respuesta.mensaje)
     }
 }
 

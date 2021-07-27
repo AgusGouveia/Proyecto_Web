@@ -64,6 +64,9 @@ def detalleMovimiento(id=None):
                     return jsonify({"status": "fail", "mensaje": "Las monedas tienen que ser diferentes"}), HTTPStatus.OK
 
             saldoExistente = calculaSaldoExistente()
+            if request.json['cantidad_from'] == 0:
+                return jsonify({"status": "fail", "mensaje": "Debes usar cantidad mayor a 0"}), HTTPStatus.OK
+
             calculaCantidadTo = par(request.json['moneda_from'], request.json['moneda_to'], float(request.json['cantidad_from']))
             transformaAJson = json.loads(calculaCantidadTo.data)
             valorCantidadTo = transformaAJson['data']['quote'][request.json['moneda_to']]['price']
@@ -91,7 +94,6 @@ def detalleMovimiento(id=None):
 def statusInversion():
     try:
         status = calculaSaldoExistente()
-        print(status)
         return jsonify ({'status': 'success', 'data': status})
     except sqlite3.Error as e:
         return jsonify({'status': 'fail', 'mensaje': str(e)})
