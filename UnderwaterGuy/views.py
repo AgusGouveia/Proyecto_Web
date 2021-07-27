@@ -85,6 +85,7 @@ def detalleMovimiento(id=None):
         return jsonify({"status": "fail", "mensaje": "Error en base de datos: {}".format(e)}), HTTPStatus.BAD_REQUEST
     except:
         return jsonify({"status": "fail", "mensaje": "Parece que algo ha fallado en nuestros servidores"}), HTTPStatus.BAD_REQUEST
+
 #Devolverá el estado de la inversión
 @app.route('/api/v1/status')
 def statusInversion():
@@ -196,7 +197,7 @@ def calculaSaldoExistente():
         listaDic1 = lista[0]
         listaDic2 = lista[1]
         if listaDic2.get('SUM(cantidad_to)') == None:
-            data = {'Total_Euros_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_Euros_Invertidos': 0, 'Valor_Actual_Cryptos_En_Euros': ValorActualCryptos['Euros'], 'Valor_Actual_Inversion': (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)')), 'Monedas_Disponibles': totalMonedas, 'Resultado': (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)'))}
+            data = {'Total_Euros_Invertidos': listaDic1.get('SUM(cantidad_from)'), 'Saldo_Euros_Invertidos': 0, 'Valor_Actual_Cryptos_En_Euros': ValorActualCryptos['Euros'], 'Valor_Actual_Inversion': (ValorActualCryptos['Euros']), 'Monedas_Disponibles': totalMonedas, 'Resultado': (ValorActualCryptos['Euros'])}
             return data
         saldoEurosInvertidos = listaDic2.get('SUM(cantidad_to)') - listaDic1.get('SUM(cantidad_from)') #De cripto a € (Criptos vendidas por €, o sea, saldo de € ACTUAL)
         ValorActualInversion = (ValorActualCryptos['Euros'] + listaDic1.get('SUM(cantidad_from)') + saldoEurosInvertidos)
