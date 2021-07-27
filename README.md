@@ -40,7 +40,7 @@ requests==2.25.1
 urllib3==1.26.6
 Werkzeug==2.0.1
 
-
+7) Para poner todo en marcha: flask run
 Flask nos levantará un servidor en el puerto localhost:5000. Usarlo juntos a las distintas rutas (@app.route('/<...>')) para acceder a comportamientos/datos especificos de la api.
 
 ¡Gracías por usar mi primer proyecto!
