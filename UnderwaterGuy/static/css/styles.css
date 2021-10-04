@@ -2,8 +2,9 @@
 a los que se acceden desde el NAVEGADOR */
 
 .tabla-movimientos tbody tr:hover {
-    background-color: rgb(142, 223, 255);
+    background-color: rgb(60, 65, 73);
 }
+
 
 .lista-movimientos {
     
@@ -11,9 +12,14 @@ a los que se acceden desde el NAVEGADOR */
     grid-template-columns: 2fr 1fr;
 }
 
+.body {
+    background-color: black;
+    color: honeydew;
+}
+
 .tabla-status {
     margin-top: 10px;
-    margin-left: 100px;
+    margin-left: 100px;    
 }
 
 .rojo {
@@ -21,5 +27,14 @@ a los que se acceden desde el NAVEGADOR */
 }
 
 .verde {
-    color: green;
+    color: rgb(45, 201, 45);
 }
+
+.white {
+    color: honeydew;
+}
+
+.button {
+    background-color: rgb(91, 209, 215) ;
+    border-color: black;
+  }

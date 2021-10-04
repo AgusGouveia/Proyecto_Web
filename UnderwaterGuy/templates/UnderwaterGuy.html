@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="/static/css/styles.css">
     <script src="/static/js/UnderwaterGuy.js"></script>
 </head>
-<body>
-    <header>CritoAPI</header>
+<body class ="body">
+    <header>CryptoAPI</header>
     <section class="container" id="principal">
         <h1>Historial de transacciones</h1>
         <div class="lista-movimientos">
@@ -47,6 +47,7 @@
                             <input type="text" name="resultado" id="resultado" disabled>
                         </div>
                     </div>
+                    <button class ="button" id="actualizar" >Actualizar</button>
                 </div>
             </div>
         </div>
@@ -58,7 +59,7 @@
                 <input type="hidden" id="idMovimiento">
                 <div class="column">
                     <label for="moneda_from">Moneda_from</label>
-                    <select name="moneda_from" id="moneda_from">
+                    <select name="moneda__from" id="moneda_from" style="color: honeydew">
                         <option value="EUR">Euro(EUR)</option>
                         <option value="BTC">Bitcoin(BTC)</option>
                         <option value="ETH">Ethereum(ETH)</option>
@@ -80,7 +81,7 @@
                         <input type="hidden" id="idMovimiento">
                     <div class="column column-33">
                     <label for="moneda_to">Moneda_to</label>
-                    <select name="moneda_to" id="moneda_to">
+                    <select name="moneda_to" id="moneda_to" style="color: honeydew">
                         <option value="EUR">Euro(EUR)</option>
                         <option value="BTC">Bitcoin(BTC)</option>
                         <option value="ETH">Ethereum(ETH)</option>
@@ -103,18 +104,18 @@
             <div class="row">
                 <div class="column column-33">
                     <label for="cantidad_from">Cantidad_from</label>
-                    <input type="number" name="cantidad_from" id="cantidad_from" step="any">
+                    <input type="number" name="cantidad_from" id="cantidad_from" step="any" style="color: honeydew">
                 </div>
                 <div class="column column-33">
                     <label for="cantidad_to">Cantidad_to</label>
-                    <input type="text" name="cantidad_to" id="cantidad_to" disabled>
+                    <input type="text" name="cantidad_to" id="cantidad_to" disabled style="color: honeydew">
                 </div>
             </div>
             <div class="row">
                 <div class="column">
-                    <button id="calcular" >Calcular </button>
-                    <button id="cancelar" type= "reset" >Cancelar</button>
-                    <button id="aceptar" >Aceptar</button>
+                    <button class ="button" id="calcular" >Calcular </button>
+                    <button class ="button" id="cancelar" type= "reset" >Cancelar</button>
+                    <button class ="button" id="aceptar" >Aceptar</button>
                 </div>
             </div>
         </form>

@@ -24,6 +24,14 @@ let losMovimientos
 xhr = new XMLHttpRequest() // Manejador de peticiones de forma asincrona
 xhr2 = new XMLHttpRequest() // Necesitamos 2 para poder hacer dos llamadas sin que se pisen una a la otra
 xhr3 = new XMLHttpRequest() // necesitamos 3 ... 
+
+/*function modificaPares() {
+    const pares = document.querySelector(".moneda__from")
+    for (let i = 0; i < pares.data.length; i++){
+        pares.classList.add("disabled")
+    }
+} */
+
 function recibeRespuestaStatus() {
     if (this.readyState === 4 && (this.status === 200 || this.status === 201)) {
         const respuesta = JSON.parse(this.responseText)
@@ -31,19 +39,25 @@ function recibeRespuestaStatus() {
             alert("Se ha producido un error en acceso a servidor: "+ respuesta.mensaje)
             return
         }
+
         const data = respuesta.data
         const invertido = document.getElementById('invertido')
         const valorActual = document.getElementById('valor-inversion') 
         const resultadoInversion = document.getElementById('resultado')
         invertido.value = data.Total_Euros_Invertidos + "€"
+        invertido.classList.add("white")
         valorActual.value = data.Valor_Actual_Inversion.toFixed(8) + "€"
         resultadoInversion.value = data.Resultado.toFixed(8) + "€"
         
-        if (data.Resultado < data.Total_Euros_Invertidos) {
+        if (data.Resultado < 0) {
             resultadoInversion.classList.add("rojo")
             valorActual.classList.add("rojo")
         }
-        else {
+        if (data.Resultado == 0) {
+            resultadoInversion.classList.add("white")
+            valorActual.classList.add("white")
+        } 
+        if (data.Resultado > 0) {
             resultadoInversion.classList.add("verde")
             valorActual.classList.add("verde")
         }
@@ -181,7 +195,7 @@ function llamaApiStatus() {
 
 window.onload = function() {
     /* Todo lo que haya aquí adentro se ejecutará una vez que el HTML se renderice, o sea, exactamente despues
-    de que la pagina acabe de cargarse, evitando que el JS entre en juego antes de tiempo. */  
+    de que la página acabe de cargarse, evitando que el JS entre en juego antes de tiempo. */  
     
     llamaApiMovimientos()
     llamaApiStatus()
@@ -192,5 +206,8 @@ window.onload = function() {
 
     document.querySelector("#aceptar")
         .addEventListener("click", llamaApiCreaMovimiento)
+    
+    document.querySelector("#actualizar")
+        .addEventListener("click", llamaApiStatus)
 
 }
